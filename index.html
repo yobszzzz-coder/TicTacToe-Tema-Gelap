@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --accent-x: #bb86fc;
+            --accent-o: #42a5f5;
+            --accent-win: #26a69a;
+            --accent-btn-1: #3949ab;
+            --accent-btn-2: #c2185b;
+            --shadow: rgba(0, 0, 0, 0.4);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            background-color: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px var(--shadow);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, var(--accent-x), var(--accent-o));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+        }
+
+        .status {
+            font-size: 1.25rem;
+            padding: 12px;
+            background-color: var(--bg-tertiary);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        #current-player {
+            color: var(--accent-x);
+            font-weight: 700;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .score-card {
+            background-color: var(--bg-tertiary);
+            padding: 18px 10px;
+            border-radius: 10px;
+            width: 30%;
+            transition: var(--transition);
+        }
+
+        .score-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+
+        .score-card h3 {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .score-card p {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .score-x { color: var(--accent-x); }
+        .score-draw { color: var(--text-secondary); }
+        .score-o { color: var(--accent-o); }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .cell {
+            aspect-ratio: 1/1;
+            background-color: var(--bg-tertiary);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            font-weight: 700;
+            transition: var(--transition);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .cell:hover {
+            transform: scale(1.03);
+            background-color: #353535;
+        }
+
+        .cell.x { color: var(--accent-x); }
+        .cell.o { color: var(--accent-o); }
+        .cell.winner { 
+            background-color: var(--accent-win);
+            color: var(--bg-primary);
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { opacity: 0.8; transform: scale(1); }
+            to { opacity: 1; transform: scale(1.02); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #reset-game {
+            background-color: var(--accent-btn-1);
+            color: var(--text-primary);
+        }
+
+        #reset-game:hover {
+            background-color: #4757c9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(57, 73, 171, 0.4);
+        }
+
+        #reset-score {
+            background-color: var(--accent-btn-2);
+            color: var(--text-primary);
+        }
+
+        #reset-score:hover {
+            background-color: #d81b60;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(194, 24, 91, 0.4);
+        }
+
+        /* Responsif untuk perangkat kecil */
+        @media (max-width: 380px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .cell {
+                font-size: 2.8rem;
+            }
+
+            .score-card p {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TIC-TAC-TOE</h1>
+        <p class="subtitle">Permainan Klasik • Tema Gelap</p>
+        
+        <div class="status" id="status">
+            Giliran Pemain: <span id="current-player">X</span>
+        </div>
+
+        <div class="scoreboard">
+            <div class="score-card">
+                <h3>Pemain X</h3>
+                <p id="score-x" class="score-x">0</p>
+            </div>
+            <div class="score-card">
+                <h3>Seri</h3>
+                <p id="score-draw" class="score-draw">0</p>
+            </div>
+            <div class="score-card">
+                <h3>Pemain O</h3>
+                <p id="score-o" class="score-o">0</p>
+            </div>
+        </div>
+
+        <div class="board" id="board"></div>
+
+        <div class="controls">
+            <button id="reset-game">Permainan Baru</button>
+            <button id="reset-score">Reset Semua Skor</button>
+        </div>
+    </div>
+
+    <script>
+        // Variabel Global
+        let currentPlayer = 'X';
+        let gameState = ['', '', '', '', '', '', '', '', ''];
+        let isGameActive = true;
+        let scores = { x: 0, o: 0, draw: 0 };
+
+        // Kondisi Kemenangan
+        const winningCombos = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Baris
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Kolom
+            [0, 4, 8], [2, 4, 6]              // Diagonal
+        ];
+
+        // Elemen DOM
+        const boardElement = document.getElementById('board');
+        const statusElement = document.getElementById('status');
+        const currentPlayerElement = document.getElementById('current-player');
+        const scoreXElement = document.getElementById('score-x');
+        const scoreOElement = document.getElementById('score-o');
+        const scoreDrawElement = document.getElementById('score-draw');
+        const resetGameBtn = document.getElementById('reset-game');
+        const resetScoreBtn = document.getElementById('reset-score');
+
+        // Inisialisasi Papan Permainan
+        function initBoard() {
+            boardElement.innerHTML = '';
+            gameState.forEach((value, index) => {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.index = index;
+                cell.textContent = value;
+                
+                if (value === 'X') cell.classList.add('x');
+                if (value === 'O') cell.classList.add('o');
+                
+                cell.addEventListener('click', handleCellClick);
+                boardElement.appendChild(cell);
+            });
+        }
+
+        // Tangani Klik Sel
+        function handleCellClick(e) {
+            const index = parseInt(e.target.dataset.index);
+
+            // Cek apakah sel sudah terisi atau permainan berhenti
+            if (gameState[index] !== '' || !isGameActive) return;
+
+            // Tambahkan animasi klik
+            e.target.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                e.target.style.transform = 'scale(1)';
+            }, 100);
+
+            // Update State dan Tampilan
+            gameState[index] = currentPlayer;
+            e.target.textContent = currentPlayer;
+            e.target.classList.add(currentPlayer.toLowerCase());
+
+            // Cek Hasil Permainan
+            checkGameResult();
+        }
+
+        // Cek Hasil Permainan
+        function checkGameResult() {
+            let isWon = false;
+            let winningCombo = null;
+
+            // Cek Kondisi Kemenangan
+            for (const combo of winningCombos) {
+                const [a, b, c] = combo;
+                if (gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
+                    isWon = true;
+                    winningCombo = combo;
+                    break;
+                }
+            }
+
+            if (isWon) {
+                // Jika Ada Pemenang
+                isGameActive = false;
+                highlightWinner(winningCombo);
+                statusElement.innerHTML = `Pemenang: <span id="current-player" style="color: ${currentPlayer === 'X' ? 'var(--accent-x)' : 'var(--accent-o)'}">Pemain ${currentPlayer}</span>!`;
+                updateScore(currentPlayer);
+                return;
+            }
+
+            // Cek Seri
+            if (!gameState.includes('')) {
+                isGameActive = false;
+                statusElement.textContent = 'Permainan Berakhir Seri!';
+                updateScore('draw');
+                return;
+            }
+
+            // Ganti Pemain
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            currentPlayerElement.textContent = currentPlayer;
+            currentPlayerElement.style.color = currentPlayer === 'X' ? 'var(--accent-x)' : 'var(--accent-o)';
+            statusElement.innerHTML = `Giliran Pemain: <span id="current-player" style="color: ${currentPlayer === 'X' ? 'var(--accent-x)' : 'var(--accent-o)'}">${currentPlayer}</span>`;
+        }
+
+        // Sorot Sel Pemenang
+        function highlightWinner(combo) {
+            combo.forEach(index => {
+                const cell = boardElement.children[index];
+                cell.classList.add('winner');
+            });
+        }
+
+        // Update Skor
+        function updateScore(winner) {
+            if (winner === 'X') scores.x++;
+            else if (winner === 'O') scores.o++;
+            else scores.draw++;
+
+            scoreXElement.textContent = scores.x;
+            scoreOElement.textContent = scores.o;
+            scoreDrawElement.textContent = scores.draw;
+        }
+
+        // Reset Permainan
+        function resetGame() {
+            currentPlayer = 'X';
+            gameState = ['', '', '', '', '', '', '', '', ''];
+            isGameActive = true;
+            currentPlayerElement.textContent = currentPlayer;
+            currentPlayerElement.style.color = 'var(--accent-x)';
+            statusElement.innerHTML = `Giliran Pemain: <span id="current-player" style="color: var(--accent-x)">${currentPlayer}</span>`;
+            initBoard();
+        }
+
+        // Reset Semua Skor
+        function resetAllScore() {
+            // Tambahkan konfirmasi
+            if (confirm('Apakah Anda yakin ingin mereset semua skor?')) {
+                scores = { x: 0, o: 0, draw: 0 };
+                scoreXElement.textContent = scores.x;
+                scoreOElement.textContent = scores.o;
+                scoreDrawElement.textContent = scores.draw;
+                resetGame();
+            }
+        }
+
+        // Tambahkan Event Listener
+        resetGameBtn.addEventListener('click', resetGame);
+        resetScoreBtn.addEventListener('click', resetAllScore);
+
+        // Mulai Permainan Pertama
+        initBoard();
+    </script>
+</body>
+</html>
